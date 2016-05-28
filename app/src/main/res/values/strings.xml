@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PeopleMaps</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_main">Main</string>
+    <string name="title_activity_login">Login</string>
+    <string name="signed_in_fmt">Продолжить как: %s</string>
+</resources>
