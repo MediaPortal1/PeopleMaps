@@ -1,12 +1,15 @@
 package com.poltavets.app.peoplemaps.view;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.poltavets.app.peoplemaps.R;
 import com.poltavets.app.peoplemaps.presenter.MainActivityInterface;
@@ -19,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements MainView{
     VIEW
      */
     private ListView listview; //MAIN LISTVIEW
+    private TextView textView; //MAIN TEXTVIEW NAME
 
     /*
     PRESENTER
@@ -42,14 +46,17 @@ public class MainActivity extends AppCompatActivity implements MainView{
         INIT VIEW
          */
         listview=(ListView)findViewById(R.id.listView_main);
+        textView=(TextView)findViewById(R.id.textView_name_mainactivity);
         //
 
         /*
         PRESENTER
          */
         Intent loginIntent=getIntent();
-        presenter=new MainActivityPresenter(this,loginIntent.getStringExtra("name"),loginIntent.getStringExtra("id"));
+        textView.setText(loginIntent.getStringExtra("name"));
+        presenter=new MainActivityPresenter(this,loginIntent.getStringExtra("name"),loginIntent.getStringExtra("id"),loginIntent.getStringExtra("token"));
         //
+
 
     }
 
@@ -57,4 +64,5 @@ public class MainActivity extends AppCompatActivity implements MainView{
     public void setAdapter(BaseAdapter adapter) {
         listview.setAdapter(adapter);
     }
+
 }
