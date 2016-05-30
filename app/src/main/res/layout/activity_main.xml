@@ -34,24 +34,40 @@
         android:layout_alignParentStart="true"
         android:layout_marginTop="20dp"
         />
-
-    <ListView
-        android:id="@+id/listView_main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        style="@style/AppTheme"
-        android:layout_marginLeft="0dp"
-        android:layout_below="@+id/textView.name.static"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Small Text"
         android:id="@+id/textView.name.mainactivity"
-        android:layout_above="@+id/listView_main"
+        android:layout_above="@+id/frameLayout"
         android:layout_toEndOf="@+id/textView.name.static" />
+<FrameLayout
+    android:layout_marginLeft="0dp"
+    android:layout_below="@+id/textView.name.static"
+    android:layout_alignParentStart="true"
+    android:layout_marginTop="20dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/frameLayout">
+
+    <ProgressBar
+        android:id="@+id/progressBar.main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        style="?android:attr/progressBarStyleLarge"
+        android:indeterminate="true"
+        />
+
+    <ListView
+        android:id="@+id/listView_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="@style/AppTheme"
+        android:visibility="invisible"
+        android:layout_gravity="center"
+        />
+</FrameLayout>
 
 </RelativeLayout>

@@ -7,9 +7,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.poltavets.app.peoplemaps.R;
 import com.poltavets.app.peoplemaps.presenter.MainActivityInterface;
@@ -23,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements MainView{
      */
     private ListView listview; //MAIN LISTVIEW
     private TextView textView; //MAIN TEXTVIEW NAME
+    private ProgressBar progressBar; //MAIN PROGRESSBAR
 
     /*
     PRESENTER
@@ -47,6 +53,13 @@ public class MainActivity extends AppCompatActivity implements MainView{
          */
         listview=(ListView)findViewById(R.id.listView_main);
         textView=(TextView)findViewById(R.id.textView_name_mainactivity);
+        progressBar=(ProgressBar) findViewById(R.id.progressBar_main);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivity(presenter.getMapIntent(position));
+            }
+        });
         //
 
         /*
@@ -54,10 +67,15 @@ public class MainActivity extends AppCompatActivity implements MainView{
          */
         Intent loginIntent=getIntent();
         textView.setText(loginIntent.getStringExtra("name"));
-        presenter=new MainActivityPresenter(this,loginIntent.getStringExtra("name"),loginIntent.getStringExtra("id"),loginIntent.getStringExtra("token"));
+        presenter=new MainActivityPresenter(this,this,loginIntent.getStringExtra("token"));
         //
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override
@@ -65,4 +83,19 @@ public class MainActivity extends AppCompatActivity implements MainView{
         listview.setAdapter(adapter);
     }
 
+    @Override
+    public void setListEnabled() {
+        listview.setEnabled(true);
+        listview.setVisibility(View.VISIBLE);
+        progressBar.setIndeterminate(false);
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void setListOnProgress() {
+        listview.setEnabled(false);
+        listview.setVisibility(View.INVISIBLE);
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.VISIBLE);
+    }
 }

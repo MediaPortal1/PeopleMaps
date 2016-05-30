@@ -44,10 +44,6 @@
         <activity
             android:name=".view.MapsActivity"
             android:label="@string/title_activity_maps">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.MainActivity" />
-
         </activity>
         <activity android:name=".view.LoginActivity">
             <intent-filter>
@@ -55,9 +51,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service
-            android:name=".GeocodeAddressIntentService"
-            android:exported="false"/>
     </application>
 
 </manifest>

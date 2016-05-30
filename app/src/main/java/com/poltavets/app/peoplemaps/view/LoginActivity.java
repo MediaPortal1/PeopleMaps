@@ -25,16 +25,12 @@ import com.poltavets.app.peoplemaps.R;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener{
 
+    private static final int RC_SIGN_IN = 9001;
     private GoogleApiClient mGoogleApiClient;
     private SignInButton loginbtn;
-    private GoogleSignInAccount account;
-    private static final int RC_SIGN_IN = 9001;
-    private static final String TAG = "SignInActivity";
-    private final static String SCOPE =
-            "oauth2:https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/";
     private TextView txtView;
+    private GoogleSignInAccount account;
     private String name;
-    private String id;
     private String token;
 
     @Override
@@ -84,9 +80,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 break;
             case R.id.textView_login:
                 Intent intent=new Intent(this,MainActivity.class);
-                intent.putExtra("name",name);
-                intent.putExtra("id",id);
                 intent.putExtra("token",token);
+                intent.putExtra("name",name);
                 startActivity(intent);
                 break;
         }
@@ -107,19 +102,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
     }
     private void handleSignInResult(GoogleSignInResult result) {
-        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             account= result.getSignInAccount();
             name=account.getDisplayName();
-            id=account.getId();
             token=account.getIdToken();
             txtView.setText(getString(R.string.signed_in_fmt, account.getDisplayName()));
             txtView.setEnabled(true);
             txtView.setVisibility(View.VISIBLE);
             Toast.makeText(this,"Login success",Toast.LENGTH_SHORT).show();
         } else {
-            // Signed out, show unauthenticated UI.
+            Toast.makeText(this,"Login failed",Toast.LENGTH_SHORT).show();
         }
     }
 }
