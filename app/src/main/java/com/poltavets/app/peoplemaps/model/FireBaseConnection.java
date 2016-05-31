@@ -4,17 +4,13 @@ package com.poltavets.app.peoplemaps.model;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 
 import com.firebase.client.Firebase;
-import com.firebase.client.core.view.View;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,7 +33,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class FireBaseConnection {
 
@@ -72,9 +67,11 @@ public class FireBaseConnection {
     /*
     LOAD ONLINE USERS FROM FIREBASE
      */
-    private void loadUsers(){
-        DownloadOnlineUsers connection=new DownloadOnlineUsers();
-        connection.execute();
+    public void loadUsers(){
+        if(user!=null) {
+            DownloadOnlineUsers connection = new DownloadOnlineUsers();
+            connection.execute();
+        }
     }
 
     /*
@@ -102,6 +99,7 @@ public class FireBaseConnection {
                     DatabaseReference con = online.child(user.getUid());
                     con.setValue(mapsuser);
                     con.child("status").onDisconnect().setValue(false); // WHEN CONNECTION IS DONE, SET STATUS=FALSE
+                    loadUsers();
                 }else {
                     Log.i("State","not connected");
                 }
@@ -113,16 +111,16 @@ public class FireBaseConnection {
         //ON ITEMS CHANGED
         online.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {loadUsers();} //UPDATE USER LIST
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {} //UPDATE USER LIST
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {loadUsers();}//UPDATE USER LIST
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}//UPDATE USER LIST
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {loadUsers();}//UPDATE USER LIST
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}//UPDATE USER LIST
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {loadUsers();}//UPDATE USER LIST
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}//UPDATE USER LIST
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
@@ -149,23 +147,37 @@ public class FireBaseConnection {
          */
         Query result=online.orderByChild("name");
 
-        //GET USER
-        result.addChildEventListener(new ChildEventListener() {
+        result.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                PeopleMapsUser usersnapshot=dataSnapshot.getValue(PeopleMapsUser.class);//GET PEOPLEMAPSUSER FROM FIREBASE
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
+                for (DataSnapshot child : dataSnapshot.getChildren()){
+
+                PeopleMapsUser usersnapshot=child.getValue(PeopleMapsUser.class);//GET PEOPLEMAPSUSER FROM FIREBASE
                 if(usersnapshot.isStatus()) { // IS USER ONLINE? (STATUS==TRUE)
                     Map<String, Object> item = new HashMap<String, Object>();
-                    if(usersnapshot.getName()==user.getDisplayName())//THIS USER ARE YOU?
-                    item.put("name", usersnapshot.getName()+" (you)"); //YES
-                        else
+                    if (usersnapshot.getName() == user.getDisplayName())//THIS USER ARE YOU?
+                        item.put("name", usersnapshot.getName() + " (you)"); //YES
+                    else
                         item.put("name", usersnapshot.getName()); //NO
                     item.put("lat", usersnapshot.getLatitude());
                     item.put("long", usersnapshot.getLongitude());
                     itemlist.add(item); //ADD USER TO LIST
                     adapterUpdate();  //UPDATE USER LIST
                 }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        //GET USER
+        result.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                adapterUpdate();
             }
 
             @Override
@@ -182,7 +194,7 @@ public class FireBaseConnection {
     private void adapterUpdate(){
         if(adapter!=null) {
             adapter.notifyDataSetChanged();
-            presenter.updateList();
+            presenter.setListVisible();
         }
     }
 

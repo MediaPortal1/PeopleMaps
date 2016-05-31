@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         //INIT LOGIN BUTTON & TextView
         loginbtn=(SignInButton)findViewById(R.id.sign_in_button);
-        loginbtn.setSize(SignInButton.SIZE_STANDARD);
+        loginbtn.setSize(SignInButton.SIZE_WIDE);
         loginbtn.setScopes(gso.getScopeArray());
         loginbtn.setOnClickListener(this);
         txtView=(TextView)findViewById(R.id.textView_login);

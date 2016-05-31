@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        >
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_main"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            />
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:layout_marginTop="?attr/actionBarSize"
+        >
+
+        <RelativeLayout
+        android:layout_marginLeft="0dp"
+        android:layout_below="@+id/textView.name.static"
+        android:layout_alignParentStart="true"
+            android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/frameLayout"
+            android:layout_weight="1">
+
+        <ProgressBar
+            android:id="@+id/progressBar.main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_centerInParent="true"
+            style="?android:attr/progressBarStyleLarge"
+
+            />
+
+        <ListView
+            android:id="@+id/listView_main"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            style="@style/AppTheme"
+            android:visibility="invisible"
+            android:layout_gravity="center"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="0dp"
+            android:layout_below="@+id/textView.name.static" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Name: "
+                android:id="@+id/textView.name.static"
+                android:textStyle="bold"
+                android:layout_marginLeft="20dp"
+                android:layout_below="@+id/appbar_main"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="20dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:id="@+id/textView.name.mainactivity"
+                android:layout_marginLeft="0dp"
+                android:layout_alignBottom="@+id/textView.name.static"
+                android:layout_toEndOf="@+id/textView.name.static" />
+
+            <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/floating_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+                android:src="@mipmap/autorenew"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
+        <fragment
+            android:id="@+id/fragment_maps"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="com.poltavets.app.peoplemaps.view.MapsFragment"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</RelativeLayout>

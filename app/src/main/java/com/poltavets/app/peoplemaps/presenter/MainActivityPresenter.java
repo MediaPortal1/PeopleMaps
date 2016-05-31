@@ -1,37 +1,19 @@
 package com.poltavets.app.peoplemaps.presenter;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.os.ResultReceiver;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 import com.poltavets.app.peoplemaps.model.FireBaseConnection;
 import com.poltavets.app.peoplemaps.view.MainView;
 import com.poltavets.app.peoplemaps.view.MapsActivity;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 
 public class MainActivityPresenter implements MainActivityInterface{
@@ -79,11 +61,11 @@ public class MainActivityPresenter implements MainActivityInterface{
     @Override
     public void setAdapter(BaseAdapter adapter) { //SETTER ADAPTER
         view.setAdapter(adapter);
-        updateList();
+        setListVisible();
     }
 
     @Override
-    public void updateList() {
+    public void setListVisible() {
         if(database!=null) {
             if (database.getUserCount() > 0) view.setListEnabled();
         }
@@ -97,6 +79,11 @@ public class MainActivityPresenter implements MainActivityInterface{
         intent.putExtra("name",database.getName(position));
 
         return intent;
+    }
+
+    @Override
+    public void refreshUserList() {
+        database.loadUsers();
     }
 
     @Override
