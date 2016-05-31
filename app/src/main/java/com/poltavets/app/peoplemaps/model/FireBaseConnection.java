@@ -24,12 +24,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.poltavets.app.peoplemaps.R;
 import com.poltavets.app.peoplemaps.presenter.MainActivityInterface;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +45,7 @@ public class FireBaseConnection {
 
         /*************CONSTRUCTOR*************/
     public FireBaseConnection(final Context context, final MainActivityInterface presenter, String token, double latitude, double longitude){
+
         /*********SET************/
         this.context = context;
         this.token=token;
@@ -108,24 +103,6 @@ public class FireBaseConnection {
             public void onCancelled(DatabaseError databaseError) {}
         });
 
-        //ON ITEMS CHANGED
-        online.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {} //UPDATE USER LIST
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}//UPDATE USER LIST
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}//UPDATE USER LIST
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}//UPDATE USER LIST
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
-
         //AUTH USER
         Firebase.getDefaultConfig().setPersistenceEnabled(true);
         AuthCredential credential = GoogleAuthProvider.getCredential(token, null);
@@ -173,22 +150,7 @@ public class FireBaseConnection {
 
             }
         });
-        //GET USER
-        result.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                adapterUpdate();
-            }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {adapterUpdate();} //UPDATE LIST
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {adapterUpdate();}//UPDATE LIST
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {adapterUpdate(); }//UPDATE LIST
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
     }
 
     private void adapterUpdate(){
@@ -229,7 +191,6 @@ public class FireBaseConnection {
             adapter=new SimpleAdapter(context,itemlist,
                     R.layout.listitem_postitions_main,
                     new String[]{"name"},new int[]{R.id.textView_medium_listitem_main});
-            adapter.setViewBinder(new MyBinder());
             return null;
         }
 
@@ -239,37 +200,6 @@ public class FireBaseConnection {
             presenter.setAdapter(adapter);
         }
     }
-
-    /*****************DOWNLOAD PROFILE IMAGE***************/
-    // DONT USING
-    private static class DownloadFile extends AsyncTask<String,Void,Bitmap>{
-        private PeopleMapsUser user;
-
-        public DownloadFile(PeopleMapsUser user) {
-            this.user = user;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            Bitmap bmImg=null;
-            URL myFileUrl =null;
-            try {
-                myFileUrl = new URL(params[0]);
-                HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
-                conn.setDoInput(true);
-                conn.connect();
-                //int length = conn.getContentLength();
-                InputStream is = conn.getInputStream();
-                bmImg = BitmapFactory.decodeStream(is);
-            } catch (MalformedURLException e) {
-                // imageLoadedHandler.sendEmptyMessage(FAILED);
-            } catch (IOException e) {
-                // imageLoadedHandler.sendEmptyMessage(FAILED);
-            }
-            return bmImg;
-        }
-    }
-
 
     /*****************PEOPLE MAPS***************/
      /****************USER ID CLASS ***********/
@@ -304,19 +234,4 @@ public class FireBaseConnection {
         public void setStatus(boolean status) {this.status = status;}
      }
 
-    /*****************MY BINDER***************/
-    /****************FOR IMAGES FROM URL ***********/
-    private class MyBinder implements SimpleAdapter.ViewBinder{
-        @Override
-        public boolean setViewValue(android.view.View view, Object data, String textRepresentation) {
-            if((view instanceof ImageView) & (data instanceof Bitmap))
-            {
-                ImageView iv = (ImageView) view;
-                Bitmap bm = (Bitmap) data;
-                iv.setImageBitmap(bm);
-                return true;
-            }
-            return false;
-        }
-    }
 }
