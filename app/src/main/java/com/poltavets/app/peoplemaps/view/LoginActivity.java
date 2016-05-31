@@ -25,19 +25,25 @@ import com.poltavets.app.peoplemaps.R;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener{
 
-    private static final int RC_SIGN_IN = 9001;
+    private static final int RC_SIGN_IN = 9001; //REQUES CODE FOR INTENT GOOGLE oAuth
+
+    //GOOGLE API
     private GoogleApiClient mGoogleApiClient;
-    private SignInButton loginbtn;
-    private TextView txtView;
     private GoogleSignInAccount account;
-    private String name;
+
+    //VIEW
+    private SignInButton loginbtn; //BUTTON VIEW
+    private TextView txtView; //TEXTVIEW
+
+    //FIELDS
+    private String googleUsername;
     private String token;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login); //CONTENT VIEW
 
         //TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_login);
@@ -75,13 +81,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.sign_in_button:
+            case R.id.sign_in_button: //SIGN IN BTN
                 signIn();
                 break;
-            case R.id.textView_login:
+            case R.id.textView_login: //TEXTVIEW
                 Intent intent=new Intent(this,MainActivity.class);
                 intent.putExtra("token",token);
-                intent.putExtra("name",name);
+                intent.putExtra("name",googleUsername);
                 startActivity(intent);
                 break;
         }
@@ -105,7 +111,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             account= result.getSignInAccount();
-            name=account.getDisplayName();
+            googleUsername=account.getDisplayName();
             token=account.getIdToken();
             txtView.setText(getString(R.string.signed_in_fmt, account.getDisplayName()));
             txtView.setEnabled(true);

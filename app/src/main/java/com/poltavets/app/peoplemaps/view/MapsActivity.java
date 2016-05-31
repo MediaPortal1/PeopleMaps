@@ -16,39 +16,46 @@ import com.poltavets.app.peoplemaps.R;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    //VIEW
+    private GoogleMap mMap; //GOOGLE MAP FRAGMENT-VIEW
+
+    //FIELDS
     private double latitude,longitude;
     private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
 
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps); //CONTENT VIEW
+
+        /*
+        INIT TOOLBAR
+         */
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_maps);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(getString(R.string.title_activity_maps));
+        //
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        if(getIntent()!=null){
+        //
+
+        if(getIntent()!=null){ //GET LOCATION INFO
             latitude=getIntent().getDoubleExtra("lat",0.0);
             longitude=getIntent().getDoubleExtra("long",0.0);
             name=getIntent().getStringExtra("name");
         }
     }
 
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        LatLng location=new LatLng(latitude,longitude);
-        mMap.addMarker(new MarkerOptions().position(location).title("This is "+name+"!  "));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+        LatLng userlocation=new LatLng(latitude,longitude);
+        mMap.addMarker(new MarkerOptions().position(userlocation).title("This is "+name+"!  "));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(userlocation));
     }
     public void onClickTest(){
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);

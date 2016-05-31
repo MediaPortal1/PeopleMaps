@@ -36,24 +36,30 @@ import java.util.Locale;
 
 public class MainActivityPresenter implements MainActivityInterface{
 
-    private Context context;
-    private MainView view;
-    private double latitude, longitude;
-    private FireBaseConnection database;
-    private final String TAG="MainActivityPresenter";
+    private Context context; //APP CONTEXT
+    private MainView view; //MAINVIEW
+    private double latitude, longitude; //LOCATIOON INFO
+    private FireBaseConnection database; // FIREBASE
 
-
-    @TargetApi(Build.VERSION_CODES.M)
     public MainActivityPresenter(Context context, MainView view,String token) {
+        /*
+        INIT
+         */
         this.context = context;
         this.view=view;
-        initLocation();
+
+        initLocation();//GET CURRENT POSITION
+
+        /*
+        CONNECT TO FIREBASE
+         */
         database = new FireBaseConnection(context, this, token, latitude, longitude);//
     }
 
-    private void initLocation() {
+    private void initLocation() { //GET LOCATION
         LocationManager locationManager = (LocationManager) context.
                 getSystemService(Context.LOCATION_SERVICE);
+
         LocationListener locationListener = new MyLocationListener();
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -64,14 +70,14 @@ public class MainActivityPresenter implements MainActivityInterface{
         setLocation(location.getLatitude(),location.getLongitude());
     }
 
-    private void setLocation(double lat,double lon){
+    private void setLocation(double lat,double lon){ //SETTER LOCATION
         this.latitude=lat;
         this.longitude=lon;
     }
 
 
     @Override
-    public void setAdapter(BaseAdapter adapter) {
+    public void setAdapter(BaseAdapter adapter) { //SETTER ADAPTER
         view.setAdapter(adapter);
         updateList();
     }
@@ -100,20 +106,13 @@ public class MainActivityPresenter implements MainActivityInterface{
 
     /*************LOCATION LISTENER*************/
     private class MyLocationListener implements LocationListener {
-
         @Override
-        public void onLocationChanged(Location loc) {
-            setLocation(loc.getLatitude(),loc.getLongitude());
-        }
-
+        public void onLocationChanged(Location loc) {setLocation(loc.getLatitude(),loc.getLongitude());}
         @Override
         public void onProviderDisabled(String provider) {}
-
         @Override
         public void onProviderEnabled(String provider) {}
-
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {}
-
     }
 }

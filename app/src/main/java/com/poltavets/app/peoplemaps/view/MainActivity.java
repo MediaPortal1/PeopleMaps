@@ -66,8 +66,10 @@ public class MainActivity extends AppCompatActivity implements MainView{
         PRESENTER
          */
         Intent loginIntent=getIntent();
-        textView.setText(loginIntent.getStringExtra("name"));
-        presenter=new MainActivityPresenter(this,this,loginIntent.getStringExtra("token"));
+        if(loginIntent!=null) {
+            textView.setText(loginIntent.getStringExtra("name"));
+            presenter = new MainActivityPresenter(this, this, loginIntent.getStringExtra("token"));
+        }
         //
 
 

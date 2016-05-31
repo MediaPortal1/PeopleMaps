@@ -41,185 +41,166 @@ import java.util.Objects;
 
 public class FireBaseConnection {
 
-    private Context context;
+    private Context context; // APP CONTEXT
+    private MainActivityInterface presenter; // PRESENTER | MainActivityPresenter
 
-    private final String FIREBASE_URL="https://peoplemaps-1324.firebaseio.com/";
-    private final String FIREBASE_USERS="https://peoplemaps-1324.firebaseio.com/users";
-//  private final String FIREBASE_TOKEN="wuAS09b1mK9C8jSQJ4HjfJzqKtbDPSyqgdVL10QO";
-
-    private String token;
-    private DatabaseReference rootRef; //ROOT
-    private DatabaseReference state; //Connection state
-    private DatabaseReference online; //Online users
-    private FirebaseUser user;
-    private MainActivityInterface presenter;
-    private double latitude,longitude;
-    private ArrayList<Map<String,Object>> itemlist;
-    private SimpleAdapter adapter;
+    private String token; // TOKEN OF GOOGLE USER
+    private DatabaseReference rootRef; //ROOT CAT
+    private DatabaseReference state; //Connection state CAT
+    private DatabaseReference online; //Online users CAT
+    private FirebaseUser user; // USER
+    private double latitude,longitude; // Location DATA
+    private ArrayList<Map<String,Object>> itemlist; // USERS ONLINE ARRAY
+    private SimpleAdapter adapter; // USERS ONLINE LISTITEM ADAPTER
 
 
         /*************CONSTRUCTOR*************/
     public FireBaseConnection(final Context context, final MainActivityInterface presenter, String token, double latitude, double longitude){
+        /*********SET************/
         this.context = context;
         this.token=token;
         this.latitude=latitude;
         this.longitude=longitude;
         this.presenter=presenter;
-        Firebase.setAndroidContext(context);
-        createRef();
+
+        Firebase.setAndroidContext(context);//SET CONTEXT APP
+
+        createRef(); // CREATE CONNECTION TO FIREBASE
     }
 
+
+    /*
+    LOAD ONLINE USERS FROM FIREBASE
+     */
     private void loadUsers(){
         DownloadOnlineUsers connection=new DownloadOnlineUsers();
         connection.execute();
     }
+
+    /*
+     CREATE CONNECTION WITH FIREBASE AND AUTH
+     */
     private void createRef() {
+
+        /*
+        INIT CATS
+         */
         rootRef = FirebaseDatabase.getInstance().getReference();
         state=rootRef.child("/.info/connected");
         online=rootRef.child("users");
+
+        //ON CONNECT | LOGIN BY USER ID/REGISTER NEW USER
         state.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean status=dataSnapshot.getValue(Boolean.class);
-                if(status){
+                if(status && user!=null){
                     Log.i("State","Connected");
 
                     PeopleMapsUser mapsuser=new PeopleMapsUser(user.getDisplayName(),latitude,longitude);
 
                     DatabaseReference con = online.child(user.getUid());
                     con.setValue(mapsuser);
-                    con.child("status").onDisconnect().setValue(false);
+                    con.child("status").onDisconnect().setValue(false); // WHEN CONNECTION IS DONE, SET STATUS=FALSE
                 }else {
                     Log.i("State","not connected");
                 }
             }
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) {}
         });
+
+        //ON ITEMS CHANGED
         online.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                loadUsers();
-            }
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {loadUsers();} //UPDATE USER LIST
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                loadUsers();
-            }
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {loadUsers();}//UPDATE USER LIST
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                loadUsers();
-            }
+            public void onChildRemoved(DataSnapshot dataSnapshot) {loadUsers();}//UPDATE USER LIST
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                loadUsers();
-            }
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {loadUsers();}//UPDATE USER LIST
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) {}
         });
+
+        //AUTH USER
         Firebase.getDefaultConfig().setPersistenceEnabled(true);
         AuthCredential credential = GoogleAuthProvider.getCredential(token, null);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                user=firebaseAuth.getCurrentUser();
+                user=firebaseAuth.getCurrentUser(); // SET AUTH USER
             }
         });
+        //SIGN IN
         auth.signInWithCredential(credential);
+
 
     }
     private void getOnlineQueryUsers(){
+        /*
+        GET USERS ORDER BY NAME
+         */
         Query result=online.orderByChild("name");
+
+        //GET USER
         result.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                PeopleMapsUser usersnapshot=dataSnapshot.getValue(PeopleMapsUser.class);
-                if(usersnapshot.isStatus()) {
+                PeopleMapsUser usersnapshot=dataSnapshot.getValue(PeopleMapsUser.class);//GET PEOPLEMAPSUSER FROM FIREBASE
+
+                if(usersnapshot.isStatus()) { // IS USER ONLINE? (STATUS==TRUE)
                     Map<String, Object> item = new HashMap<String, Object>();
-                    if(usersnapshot.getName()==user.getDisplayName())
-                    item.put("name", usersnapshot.getName()+" (you)");
+                    if(usersnapshot.getName()==user.getDisplayName())//THIS USER ARE YOU?
+                    item.put("name", usersnapshot.getName()+" (you)"); //YES
                         else
-                        item.put("name", usersnapshot.getName());
+                        item.put("name", usersnapshot.getName()); //NO
                     item.put("lat", usersnapshot.getLatitude());
                     item.put("long", usersnapshot.getLongitude());
-                    itemlist.add(item);
-                    adapterUpdate();
+                    itemlist.add(item); //ADD USER TO LIST
+                    adapterUpdate();  //UPDATE USER LIST
                 }
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {adapterUpdate();}
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {adapterUpdate();} //UPDATE LIST
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {adapterUpdate();}
+            public void onChildRemoved(DataSnapshot dataSnapshot) {adapterUpdate();}//UPDATE LIST
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {adapterUpdate(); }
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {adapterUpdate(); }//UPDATE LIST
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
     }
 
     private void adapterUpdate(){
-        if(adapter!=null)adapter.notifyDataSetChanged();
-        presenter.updateList();
+        if(adapter!=null) {
+            adapter.notifyDataSetChanged();
+            presenter.updateList();
+        }
     }
 
     public int getUserCount(){
-        return itemlist==null ? 0:itemlist.size();
+        return itemlist==null ? 0:itemlist.size(); //GET ITEMLIST.SIZE
     }
 
     public double getLatitude(int id) {
-        return (Double)itemlist.get(id).get("lat");
+        return (Double)itemlist.get(id).get("lat"); //GET LATITUDE
     }
 
     public double getLongitude(int id) {
-        return (Double)itemlist.get(id).get("long");
+        return (Double)itemlist.get(id).get("long"); //GET LONGITUDE
     }
 
     public String getName(int id) {
-        return (String)itemlist.get(id).get("name");
+        return (String)itemlist.get(id).get("name"); //GET NAME
     }
-
-    private static class DownloadFile extends AsyncTask<String,Void,Bitmap>{
-        private PeopleMapsUser user;
-
-        public DownloadFile(PeopleMapsUser user) {
-            this.user = user;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            Bitmap bmImg=null;
-            URL myFileUrl =null;
-            try {
-                myFileUrl = new URL(params[0]);
-                HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
-                conn.setDoInput(true);
-                conn.connect();
-                //int length = conn.getContentLength();
-                InputStream is = conn.getInputStream();
-                bmImg = BitmapFactory.decodeStream(is);
-            } catch (MalformedURLException e) {
-                // imageLoadedHandler.sendEmptyMessage(FAILED);
-            } catch (IOException e) {
-                // imageLoadedHandler.sendEmptyMessage(FAILED);
-            }
-            return bmImg;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
-        }
-    }
-
 
     /*****************DOWNLOAD ONLINE USERS***************/
     private class DownloadOnlineUsers extends AsyncTask<Void,Void,Void>{
@@ -247,15 +228,46 @@ public class FireBaseConnection {
         }
     }
 
+    /*****************DOWNLOAD PROFILE IMAGE***************/
+    // DONT USING
+    private static class DownloadFile extends AsyncTask<String,Void,Bitmap>{
+        private PeopleMapsUser user;
+
+        public DownloadFile(PeopleMapsUser user) {
+            this.user = user;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            Bitmap bmImg=null;
+            URL myFileUrl =null;
+            try {
+                myFileUrl = new URL(params[0]);
+                HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
+                conn.setDoInput(true);
+                conn.connect();
+                //int length = conn.getContentLength();
+                InputStream is = conn.getInputStream();
+                bmImg = BitmapFactory.decodeStream(is);
+            } catch (MalformedURLException e) {
+                // imageLoadedHandler.sendEmptyMessage(FAILED);
+            } catch (IOException e) {
+                // imageLoadedHandler.sendEmptyMessage(FAILED);
+            }
+            return bmImg;
+        }
+    }
+
+
     /*****************PEOPLE MAPS***************/
      /****************USER ID CLASS ***********/
     public static class PeopleMapsUser{
+
         private String name;
         private double latitude,longitude;
         private boolean status=true;
 
         public PeopleMapsUser(String name, double latitude, double longitude) {
-
             this.name = name;
             this.latitude = latitude;
             this.longitude = longitude;
@@ -279,6 +291,9 @@ public class FireBaseConnection {
 
         public void setStatus(boolean status) {this.status = status;}
      }
+
+    /*****************MY BINDER***************/
+    /****************FOR IMAGES FROM URL ***********/
     private class MyBinder implements SimpleAdapter.ViewBinder{
         @Override
         public boolean setViewValue(android.view.View view, Object data, String textRepresentation) {
